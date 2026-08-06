@@ -1,91 +1,79 @@
 # .github/workflows/deploy-pages.yml
 
-# Name of the workflow, which will be displayed in the GitHub Actions tab.
+# Name of the workflow, displayed in the GitHub Actions tab.
 name: Deploy to GitHub Pages
 
-# Controls when the workflow will run.
+# Specifies the events that trigger this workflow.
 on:
-  # Runs on pushes to the `main` branch.
+  # Runs on pushes to the 'main' branch.
   push:
     branches:
       - main
-  # Allows you to run this workflow manually from the Actions tab.
+  # Allows manual triggering from the Actions tab.
   workflow_dispatch:
 
-# Sets the permissions for the GITHUB_TOKEN to allow deployment to GitHub Pages.
-# This is crucial for the deployment job to have the necessary access rights.
+# Sets permissions for the GITHUB_TOKEN for this workflow run.
+# This is necessary for the deploy action to authenticate and authorize correctly.
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# Allows only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# This prevents race conditions where an older build might overwrite a newer one.
+# Ensures that only one deployment runs at a time.
+# If a new run is triggered while one is in progress, the in-progress run is canceled.
 concurrency:
   group: "pages"
   cancel-in-progress: true
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel.
+# Defines the jobs that make up the workflow.
 jobs:
-  # This job builds the static site content.
+  # Job 1: Build the static site content.
   build:
     runs-on: ubuntu-latest
     steps:
-      # Step 1: Check out the repository's code so the workflow can access it.
+      # Step 1.1: Checks out the repository's code.
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Step 2: Set up the Pages artifact. 
-      # This example creates a simple index.html file.
-      # In a real project, this step would involve running a build command 
-      # (e.g., `npm run build`, `hugo`, `jekyll build`).
-      - name: Setup Pages
+      # Step 1.2: Build your site. This is a placeholder.
+      # Replace this with your actual build command (e.g., `npm run build`, `hugo`, etc.).
+      # The output must be placed in a single directory for upload.
+      - name: Build Static Site
         run: |
           mkdir -p _site
-          echo "<h1>Welcome to My GitHub Pages Site!</h1>" > _site/index.html
-          echo "<p>This page was deployed by a GitHub Action.</p>" >> _site/index.html
+          echo "<h1>My GitHub Pages Site</h1>" > _site/index.html
+          date >> _site/index.html
 
-      # Step 3: Upload the build output as an artifact.
-      # The `actions/deploy-pages` action will automatically download this artifact.
+      # Step 1.3: Uploads the build output as a Pages artifact.
       # The name 'github-pages' is the default expected by the deploy action.
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # The path to the directory containing the static files to be deployed.
+          # Specifies the directory containing the built site to upload.
           path: './_site'
 
-  # This job deploys the artifact to GitHub Pages.
+  # Job 2: Deploy the artifact to GitHub Pages.
   deploy:
-    # This job requires the 'build' job to complete successfully first.
+    # This job will only run after the 'build' job has succeeded.
     needs: build
     
-    # Specifies the environment for deployment. 'github-pages' is a special environment.
+    # Configures the job to run in the 'github-pages' deployment environment.
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
       
     runs-on: ubuntu-latest
     steps:
-      # Step 1: Deploy the uploaded artifact to GitHub Pages.
+      # Step 2.1: Deploys the previously uploaded artifact.
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
         with:
-          # The timeout for the deployment in milliseconds. 
-          # 600000ms = 10 minutes. The action will fail if deployment isn't complete by then.
+          # Timeout for the deployment in milliseconds. Your log shows 10 minutes (600,000ms).
           timeout: 600000 
           
-          # The interval for polling the deployment status in milliseconds.
-          # 5000ms = 5 seconds. This is how often it checks if the deployment is done.
+          # Interval for polling the deployment status in milliseconds. Your log shows 5 seconds.
           reporting_interval: 5000 
 
-          # The name of the artifact to deploy. Must match the name used in `upload-pages-artifact`.
-          # 'github-pages' is the default, but we specify it for clarity.
+          # The name of the artifact to deploy. Must match the name from the 'upload-pages-artifact' step.
           artifact_name: github-pages
-
-          # The number of consecutive errors to tolerate before failing.
-          error_count: 10
-
-          # When set to `false` (default), it performs a production deployment.
-          # Set to `true` to create a preview deployment for pull requests.
-          preview: false
