@@ -1,0 +1,91 @@
+# .github/workflows/deploy-pages.yml
+
+# Name of the workflow, which will be displayed in the GitHub Actions tab.
+name: Deploy to GitHub Pages
+
+# Controls when the workflow will run.
+on:
+  # Runs on pushes to the `main` branch.
+  push:
+    branches:
+      - main
+  # Allows you to run this workflow manually from the Actions tab.
+  workflow_dispatch:
+
+# Sets the permissions for the GITHUB_TOKEN to allow deployment to GitHub Pages.
+# This is crucial for the deployment job to have the necessary access rights.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allows only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# This prevents race conditions where an older build might overwrite a newer one.
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel.
+jobs:
+  # This job builds the static site content.
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Check out the repository's code so the workflow can access it.
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Step 2: Set up the Pages artifact. 
+      # This example creates a simple index.html file.
+      # In a real project, this step would involve running a build command 
+      # (e.g., `npm run build`, `hugo`, `jekyll build`).
+      - name: Setup Pages
+        run: |
+          mkdir -p _site
+          echo "<h1>Welcome to My GitHub Pages Site!</h1>" > _site/index.html
+          echo "<p>This page was deployed by a GitHub Action.</p>" >> _site/index.html
+
+      # Step 3: Upload the build output as an artifact.
+      # The `actions/deploy-pages` action will automatically download this artifact.
+      # The name 'github-pages' is the default expected by the deploy action.
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # The path to the directory containing the static files to be deployed.
+          path: './_site'
+
+  # This job deploys the artifact to GitHub Pages.
+  deploy:
+    # This job requires the 'build' job to complete successfully first.
+    needs: build
+    
+    # Specifies the environment for deployment. 'github-pages' is a special environment.
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+      
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Deploy the uploaded artifact to GitHub Pages.
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
+        with:
+          # The timeout for the deployment in milliseconds. 
+          # 600000ms = 10 minutes. The action will fail if deployment isn't complete by then.
+          timeout: 600000 
+          
+          # The interval for polling the deployment status in milliseconds.
+          # 5000ms = 5 seconds. This is how often it checks if the deployment is done.
+          reporting_interval: 5000 
+
+          # The name of the artifact to deploy. Must match the name used in `upload-pages-artifact`.
+          # 'github-pages' is the default, but we specify it for clarity.
+          artifact_name: github-pages
+
+          # The number of consecutive errors to tolerate before failing.
+          error_count: 10
+
+          # When set to `false` (default), it performs a production deployment.
+          # Set to `true` to create a preview deployment for pull requests.
+          preview: false
