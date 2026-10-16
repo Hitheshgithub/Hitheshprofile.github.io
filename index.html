@@ -14,16 +14,17 @@
 
     <style>
         /* ══════════════════════════════════════
-           NEW BRAND REFINEMENT: ENERGETIC GREEN
+            DYNAMIC BRAND REFINEMENT: ENERGETIC GREEN
         ══════════════════════════════════════ */
         :root {
-            --bg-color: #0A0A14;
-            --accent-color: #00ff8c; /* Energetic Green */
-            --text-primary: #EAF0FF;
-            --text-secondary: #A0A8C3;
-            --glass-bg: rgba(30, 42, 82, 0.25);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --glow-shadow: 0 0 15px rgba(0, 255, 140, 0.5), 0 0 30px rgba(0, 255, 140, 0.3);
+            --bg-color: #07070F;
+            --accent-color: #00ff8c;
+            --accent-glow: rgba(0, 255, 140, 0.4);
+            --text-primary: #F0F4FF;
+            --text-secondary: #949EE5;
+            --glass-bg: rgba(18, 24, 48, 0.45);
+            --glass-border: rgba(0, 255, 140, 0.15);
+            --glow-shadow: 0 0 20px rgba(0, 255, 140, 0.35), inset 0 0 15px rgba(0, 255, 140, 0.1);
         }
 
         * { margin:0; padding:0; box-sizing:border-box; }
@@ -34,16 +35,33 @@
             background-color: var(--bg-color);
             color: var(--text-primary);
             overflow-x: hidden;
+            cursor: default;
         }
+
+        /* ── CUSTOM CURSOR ── */
+        .custom-cursor {
+            position: fixed;
+            top: 0; left: 0;
+            width: 32px; height: 32px;
+            border: 2px solid var(--accent-color);
+            border-radius: 50%;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            transition: width 0.2s, height 0.2s, background-color 0.2s;
+            z-index: 9999;
+            box-shadow: 0 0 10px var(--accent-color);
+            display: none;
+        }
+        @media (min-width: 1024px) { .custom-cursor { display: block; } }
 
         /* ── SCROLLBAR ── */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: var(--bg-color); }
-        ::-webkit-scrollbar-thumb { background: var(--accent-color); border-radius: 8px; }
+        ::-webkit-scrollbar-thumb { background: var(--accent-color); border-radius: 8px; box-shadow: 0 0 10px var(--accent-color); }
         ::-webkit-scrollbar-thumb:hover { background: #00e67e; }
 
         /* ═══════════════════════════════
-           3D BACKGROUND & NAVIGATION
+            3D BACKGROUND & NAVIGATION
         ═══════════════════════════════ */
         #three-canvas {
             position: fixed;
@@ -54,154 +72,185 @@
 
         nav {
             position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-            padding: 0 5%; height: 75px; display: flex; align-items: center; justify-content: space-between;
-            background: transparent; /* UPDATED: Fully transparent header */
+            padding: 0 5%; height: 80px; display: flex; align-items: center; justify-content: space-between;
+            background: rgba(7, 7, 15, 0.7);
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
             border-bottom: 1px solid var(--glass-border);
-            transition: background-color 0.3s;
+            transition: all 0.3s ease;
         }
-        .nav-logo { font-size: 1.7rem; font-weight: 800; color: var(--accent-color); letter-spacing: 2px; }
-        .nav-links { display: flex; gap: 40px; list-style: none; }
-        .nav-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.95rem; font-weight: 500; transition: color 0.3s ease; position: relative; padding: 5px 0; }
-        .nav-links a::after { content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2px; background: var(--accent-color); transition: width 0.3s ease-in-out; box-shadow: var(--glow-shadow); }
+        .nav-logo { font-size: 1.8rem; font-weight: 800; color: var(--accent-color); letter-spacing: 2px; text-shadow: 0 0 10px var(--accent-glow); }
+        .nav-links { display: flex; gap: 35px; list-style: none; }
+        .nav-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.95rem; font-weight: 600; transition: color 0.3s ease; position: relative; padding: 5px 0; }
+        .nav-links a::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background: var(--accent-color); transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: var(--glow-shadow); }
         .nav-links a:hover, .nav-links a.active { color: var(--text-primary); }
         .nav-links a:hover::after, .nav-links a.active::after { width: 100%; }
         
         .menu-toggle { display: none; font-size: 1.5rem; background: none; border: none; color: var(--text-primary); cursor: pointer; z-index: 1001; }
 
         /* ═══════════════════════════════
-           HERO SECTION & VIDEO
+            HERO SECTION & VIDEO
         ═══════════════════════════════ */
         #hero {
             position: relative; z-index: 1;
             min-height: 100vh; display: flex; align-items: center; justify-content: center;
-            padding: 75px 5% 0; text-align: center;
+            padding: 80px 5% 0; text-align: center;
         }
         
-        /* UPDATED: Video overlay for click-to-play interaction */
         #video-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             z-index: 2000;
-            background: var(--bg-color);
+            background: radial-gradient(circle at center, #121c35 0%, #07070F 80%);
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             cursor: pointer;
             opacity: 1;
-            transition: opacity 0.5s ease-out;
+            transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        #video-overlay h2 { font-size: 2rem; color: var(--text-primary); margin-bottom: 10px; }
-        #video-overlay p { font-size: 1.1rem; color: var(--accent-color); font-weight: 500; letter-spacing: 1px; }
+        .play-btn-pulse {
+            width: 80px; height: 80px; border-radius: 50%;
+            background: var(--accent-color); color: var(--bg-color);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.8rem; margin-bottom: 25px;
+            box-shadow: 0 0 30px var(--accent-color);
+            animation: pulse-ring 2s infinite;
+        }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 140, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 25px rgba(0, 255, 140, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 140, 0); }
+        }
+        #video-overlay h2 { font-size: 2.2rem; color: var(--text-primary); margin-bottom: 8px; font-weight: 800; }
+        #video-overlay p { font-size: 1.1rem; color: var(--accent-color); font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; }
         #video-overlay.hidden { opacity: 0; pointer-events: none; }
-
 
         .hero-video-container {
             position: absolute; top: 0; left: 0;
             width: 100%; height: 100%;
-            opacity: 0; /* Initially hidden */
-            transition: opacity 1s ease-out 0.5s; /* Fade effect */
+            opacity: 0;
+            transition: opacity 1s ease-out;
         }
         .hero-video-container.visible { opacity: 1; }
         .hero-video-container.hidden { opacity: 0; pointer-events: none; }
-
-        #hero-video { width: 100%; height: 100%; object-fit: cover; }
+        #hero-video { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.7); }
 
         .hero-content { 
-            max-width: 800px; position: relative; z-index: 2;
-            opacity: 0; /* Start hidden, will fade in after video */
-            transition: opacity 1s ease;
+            max-width: 850px; position: relative; z-index: 2;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 1s ease, transform 1s ease;
         }
-        .hero-content.visible { opacity: 1; }
-        .hero-eyebrow { font-size: 1.1rem; color: var(--accent-color); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px; font-weight: 600; }
-        .hero-name { font-size: clamp(3rem, 8vw, 5rem); line-height: 1.1; margin-bottom: 20px; font-weight: 800; color: var(--text-primary); }
-        .hero-title { font-size: clamp(1.2rem, 3vw, 1.5rem); color: var(--text-secondary); margin-bottom: 30px; font-weight: 400; min-height: 2em; }
-        .hero-title span { color: var(--text-primary); font-weight: 500;}
-        .hero-desc { font-size: 1.1rem; color: var(--text-secondary); line-height: 1.7; margin: 0 auto 40px; max-width: 650px; }
+        .hero-content.visible { opacity: 1; transform: translateY(0); }
+        .hero-eyebrow { font-size: 1.1rem; color: var(--accent-color); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 16px; font-weight: 700; text-shadow: 0 0 10px var(--accent-glow); }
+        .hero-name { font-size: clamp(3rem, 8vw, 5.5rem); line-height: 1.1; margin-bottom: 20px; font-weight: 800; color: var(--text-primary); letter-spacing: -1px; }
+        .hero-title { font-size: clamp(1.2rem, 3vw, 1.6rem); color: var(--text-secondary); margin-bottom: 25px; font-weight: 400; min-height: 2.2em; }
+        .hero-title span { color: var(--accent-color); font-weight: 700; border-right: 3px solid var(--accent-color); padding-right: 4px; animation: blink 0.75s step-end infinite; }
+        @keyframes blink { from, to { border-color: transparent } 50% { border-color: var(--accent-color); } }
+
+        .hero-desc { font-size: 1.15rem; color: var(--text-secondary); line-height: 1.8; margin: 0 auto 40px; max-width: 700px; }
         .hero-btns { display: flex; gap: 20px; align-items: center; justify-content: center; }
         
-        .btn { padding: 14px 36px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.3s ease; text-transform: uppercase; border: 1px solid transparent; text-align: center; }
-        .btn-primary { background: var(--accent-color); color: var(--bg-color); border-color: var(--accent-color); }
-        .btn-secondary { background: transparent; color: var(--text-primary); border-color: var(--glass-border); }
-        .btn-primary:hover { box-shadow: var(--glow-shadow); transform: translateY(-3px); }
-        .btn-secondary:hover { border-color: var(--accent-color); color: var(--accent-color); transform: translateY(-3px); }
+        .btn { padding: 15px 36px; border-radius: 10px; font-weight: 700; font-size: 0.95rem; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 12px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); text-transform: uppercase; border: 1px solid transparent; letter-spacing: 1px; }
+        .btn-primary { background: var(--accent-color); color: var(--bg-color); border-color: var(--accent-color); box-shadow: 0 0 20px rgba(0, 255, 140, 0.4); }
+        .btn-secondary { background: var(--glass-bg); color: var(--text-primary); border-color: var(--glass-border); backdrop-filter: blur(10px); }
+        .btn-primary:hover { box-shadow: 0 0 35px rgba(0, 255, 140, 0.7); transform: translateY(-4px); background: #1aff97; }
+        .btn-secondary:hover { border-color: var(--accent-color); color: var(--accent-color); transform: translateY(-4px); box-shadow: 0 0 20px rgba(0, 255, 140, 0.2); }
 
         /* ═══════════════════════════════
-           SECTION STYLES & GLASS CARDS
+            SECTION STYLES & GLASS CARDS
         ═══════════════════════════════ */
-        section { position: relative; z-index: 1; padding: 120px 5%; }
+        section { position: relative; z-index: 1; padding: 130px 5%; }
         
-        .section-header { text-align: center; margin-bottom: 70px; max-width: 700px; margin-left: auto; margin-right: auto;}
-        .section-tag { font-size: 0.9rem; color: var(--accent-color); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 12px; font-weight: 600; }
-        .section-title { font-size: clamp(2.5rem, 5vw, 3.2rem); font-weight: 700; }
+        .section-header { text-align: center; margin-bottom: 75px; max-width: 700px; margin-left: auto; margin-right: auto;}
+        .section-tag { font-size: 0.9rem; color: var(--accent-color); letter-spacing: 4px; text-transform: uppercase; margin-bottom: 12px; font-weight: 700; text-shadow: 0 0 8px var(--accent-glow); }
+        .section-title { font-size: clamp(2.5rem, 5vw, 3.5rem); font-weight: 800; letter-spacing: -0.5px; }
         
         .glass-card {
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
-            border-radius: 12px;
-            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-            padding: 30px;
-            transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+            border-radius: 16px;
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            padding: 35px;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .glass-card::before {
+            content: '';
+            position: absolute; top: 0; left: 0; width: 100%; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent-color), transparent);
+            opacity: 0;
+            transition: opacity 0.4s ease;
         }
         .glass-card:hover {
-            transform: translateY(-8px);
+            transform: translateY(-10px) scale(1.01);
             border-color: var(--accent-color);
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), var(--glow-shadow);
         }
+        .glass-card:hover::before { opacity: 1; }
 
-        .grid-container { display: grid; gap: 25px; max-width: 1200px; margin: 0 auto; }
+        .grid-container { display: grid; gap: 30px; max-width: 1250px; margin: 0 auto; }
         .skills-grid { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
         .achievements-grid { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
-        .certs-grid { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
-        .pro-dev-grid { grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); }
+        .certs-grid { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
 
-        .card-title { font-weight: 700; font-size: 1.2rem; color: var(--text-primary); margin-bottom: 15px; }
-        .card-subtitle { color: var(--text-secondary); font-size: 0.95rem; line-height: 1.7; }
-        .card-list { list-style: none; display: flex; flex-direction: column; gap: 12px; margin-top: 20px; }
-        .card-list li { display: flex; align-items: flex-start; gap: 12px; font-size: 0.95rem; color: var(--text-secondary); line-height: 1.7; }
-        .card-list li::before { content: '▸'; color: var(--accent-color); font-weight: bold; flex-shrink: 0; margin-top: 2px; }
-
-        #experience .glass-card { padding: 40px; }
-        #experience h3 { font-size: 1.4rem; }
-        #experience h4 { color: var(--accent-color); font-weight: 500; font-size: 1rem; margin-bottom: 25px; }
-        #experience h5 { font-size: 1.1rem; color: var(--text-primary); border-top: 1px solid var(--glass-border); padding-top: 25px; margin-top: 25px; font-weight: 600; }
-
-        #contact .glass-card { max-width: 800px; margin: auto; text-align: center; }
-        #contact h3 { font-size: 1.5rem; font-weight: 600; margin-bottom: 15px; }
-        #contact p { color: var(--text-secondary); margin-bottom: 30px; max-width: 600px; margin-left: auto; margin-right: auto; line-height: 1.7; }
-        .contact-socials { display: flex; justify-content: center; gap: 20px; }
-        .social-btn { width: 55px; height: 55px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); text-decoration: none; font-size: 1.3rem; transition: all 0.3s ease; }
-        .social-btn:hover { color: var(--accent-color); border-color: var(--accent-color); box-shadow: var(--glow-shadow); transform: translateY(-5px); }
+        .card-title { font-weight: 800; font-size: 1.3rem; color: var(--text-primary); margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .card-title i { color: var(--accent-color); font-size: 1.1rem; }
+        .card-subtitle { color: var(--text-secondary); font-size: 1rem; line-height: 1.8; }
         
-        footer { padding: 40px 5%; border-top: 1px solid var(--glass-border); text-align: center; color: var(--text-secondary); font-size: 0.9rem; position: relative; z-index: 1; }
-        footer span { color: var(--text-primary); font-weight: 500; }
+        .card-list { list-style: none; display: flex; flex-direction: column; gap: 14px; margin-top: 22px; }
+        .card-list li { display: flex; align-items: flex-start; gap: 12px; font-size: 0.98rem; color: var(--text-secondary); line-height: 1.7; }
+        .card-list li::before { content: '⚡'; color: var(--accent-color); font-size: 0.85rem; flex-shrink: 0; margin-top: 3px; }
+
+        #experience .glass-card { padding: 45px; }
+        #experience h3 { font-size: 1.5rem; font-weight: 800; color: var(--text-primary); }
+        #experience h4 { color: var(--accent-color); font-weight: 600; font-size: 1.05rem; margin-top: 6px; margin-bottom: 30px; letter-spacing: 0.5px; }
+        #experience h5 { font-size: 1.15rem; color: var(--text-primary); border-top: 1px solid var(--glass-border); padding-top: 25px; margin-top: 28px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+        #experience h5 i { color: var(--accent-color); }
+
+        #contact .glass-card { max-width: 850px; margin: auto; text-align: center; padding: 60px 40px; }
+        #contact h3 { font-size: 1.8rem; font-weight: 800; margin-bottom: 15px; }
+        #contact p { color: var(--text-secondary); margin-bottom: 35px; max-width: 600px; margin-left: auto; margin-right: auto; line-height: 1.8; font-size: 1.1rem; }
+        .contact-socials { display: flex; justify-content: center; gap: 25px; }
+        .social-btn { width: 60px; height: 60px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); text-decoration: none; font-size: 1.4rem; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .social-btn:hover { color: var(--accent-color); border-color: var(--accent-color); box-shadow: var(--glow-shadow); transform: translateY(-6px) scale(1.05); background: rgba(0, 255, 140, 0.05); }
         
-        /* ── UTILITIES & RESPONSIVE ── */
-        .reveal { opacity: 0; transform: translateY(40px); transition: opacity 0.8s ease-out, transform 0.8s ease-out; }
+        footer { padding: 50px 5%; border-top: 1px solid var(--glass-border); text-align: center; color: var(--text-secondary); font-size: 0.95rem; position: relative; z-index: 1; background: rgba(7, 7, 15, 0.9); }
+        footer span { color: var(--text-primary); font-weight: 700; }
+        
+        /* ── ANIMATION REVEAL ── */
+        .reveal { opacity: 0; transform: translateY(50px); transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1); }
         .reveal.visible { opacity: 1; transform: translateY(0); }
         
         @media (max-width: 768px) {
             .menu-toggle { display: block; }
-            nav { background-color: rgba(10, 10, 20, 0.7); backdrop-filter: blur(10px); }
+            nav { background-color: rgba(7, 7, 15, 0.9); backdrop-filter: blur(15px); }
             .nav-links {
-                position: fixed; top: 75px; left: 0; width: 100%; height: calc(100vh - 75px);
-                flex-direction: column; align-items: center; justify-content: center; gap: 40px;
-                background: rgba(10, 10, 20, 0.9);
-                backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+                position: fixed; top: 80px; left: 0; width: 100%; height: calc(100vh - 80px);
+                flex-direction: column; align-items: center; justify-content: center; gap: 35px;
+                background: rgba(7, 7, 15, 0.98);
+                backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
                 transform: translateX(100%);
                 transition: transform 0.4s cubic-bezier(0.77, 0, 0.175, 1);
             }
             .nav-links.active { transform: translateX(0); }
-            .hero-btns { flex-direction: column; }
+            .hero-btns { flex-direction: column; width: 100%; }
+            .btn { width: 100%; }
         }
     </style>
 </head>
 <body>
 
-<!-- UPDATED: 3D Object is now a Torus Knot -->
+<div class="custom-cursor" id="customCursor"></div>
+
 <canvas id="three-canvas"></canvas>
 
-<!-- UPDATED: Click-to-play overlay -->
+<!-- Video Intro Overlay -->
 <div id="video-overlay">
+    <div class="play-btn-pulse">
+        <i class="fas fa-play" style="margin-left: 4px;"></i>
+    </div>
     <h2>Welcome to my Portfolio</h2>
-    <p>Click anywhere to begin</p>
+    <p>Click anywhere to experience dynamic mode</p>
 </div>
 
 <!-- Navigation Bar -->
@@ -218,7 +267,7 @@
     <button class="menu-toggle" id="menuToggle" aria-label="Open Menu"><i class="fas fa-bars"></i></button>
 </nav>
 
-<!-- Hero Section with Video Background -->
+<!-- Hero Section -->
 <section id="hero">
     <div class="hero-video-container" id="hero-video-wrapper">
         <video id="hero-video" playsinline>
@@ -231,7 +280,7 @@
         <div class="hero-eyebrow">Hello, I'm</div>
         <h1 class="hero-name">Hithesh Yadav</h1>
         <div class="hero-title">A <span id="typed-text"></span></div>
-        <p class="hero-desc">Results-driven SRE/DevOps Engineer with ~3 years of experience building and maintaining large-scale cloud-native and AI-enabled platforms.</p>
+        <p class="hero-desc">Results-driven SRE/DevOps Engineer with ~3 years of experience building, scaling, and optimizing high-performance cloud-native and AI-enabled enterprise platforms.</p>
         <div class="hero-btns">
             <a href="#contact" class="btn btn-primary"><i class="fas fa-paper-plane"></i> Get In Touch</a>
             <a href="#experience" class="btn btn-secondary"><i class="fas fa-briefcase"></i> View Work</a>
@@ -239,58 +288,123 @@
     </div>
 </section>
 
-<!-- Other sections remain the same... -->
+<!-- Skills Section -->
 <section id="skills" class="reveal">
-    <div class="section-header"><div class="section-tag">Tech Stack</div><h2 class="section-title">Core Skills & Technologies</h2></div>
+    <div class="section-header">
+        <div class="section-tag">Tech Stack</div>
+        <h2 class="section-title">Core Skills & Technologies</h2>
+    </div>
     <div class="grid-container skills-grid">
-        <div class="glass-card reveal"><h3 class="card-title">Cloud Platforms (AWS)</h3><p class="card-subtitle">EC2, S3, ELB, Auto Scaling, IAM, VPC, KMS, SQS, SNS, Route 53, Lambda, ECS, CodePipelines, SageMaker, ACM, DynamoDB, Secrets Manager, CloudWatch.</p></div>
-        <div class="glass-card reveal"><h3 class="card-title">Containers & Orchestration</h3><p class="card-subtitle">Docker, Kubernetes, Amazon ECS, Fargate.</p></div>
-        <div class="glass-card reveal"><h3 class="card-title">CI/CD & Automation</h3><p class="card-subtitle">Jenkins, GitHub Actions, Maven, Ansible, SonarQube, JFrog, YAML, Cumulus AWS.</p></div>
-        <div class="glass-card reveal"><h3 class="card-title">Infrastructure as Code</h3><p class="card-subtitle">Terraform, CloudFormation, YAML, Ansible.</p></div>
-        <div class="glass-card reveal"><h3 class="card-title">Monitoring & Observability</h3><p class="card-subtitle">Datadog, CloudWatch, Log Analytics, OpenSearch, Bits AI, RUM.</p></div>
-        <div class="glass-card reveal"><h3 class="card-title">OS, ITSM and Others</h3><p class="card-subtitle">Linux (Ubuntu), Postman, Elasticvue, ServiceNow.</p></div>
+        <div class="glass-card reveal">
+            <h3 class="card-title"><i class="fab fa-aws"></i> Cloud Platforms (AWS)</h3>
+            <p class="card-subtitle">EC2, S3, ELB, Auto Scaling, IAM, VPC, KMS, SQS, SNS, Route 53, Lambda, ECS, CodePipelines, SageMaker, ACM, DynamoDB, Secrets Manager, CloudWatch.</p>
+        </div>
+        <div class="glass-card reveal">
+            <h3 class="card-title"><i class="fas fa-boxes-stacked"></i> Containers & Orchestration</h3>
+            <p class="card-subtitle">Docker, Kubernetes, Amazon ECS, Fargate container deployments and microservice clustering.</p>
+        </div>
+        <div class="glass-card reveal">
+            <h3 class="card-title"><i class="fas fa-infinity"></i> CI/CD & Automation</h3>
+            <p class="card-subtitle">Jenkins, GitHub Actions, Maven, Ansible, SonarQube, JFrog, YAML pipelines, and automated release workflows.</p>
+        </div>
+        <div class="glass-card reveal">
+            <h3 class="card-title"><i class="fas fa-code"></i> Infrastructure as Code</h3>
+            <p class="card-subtitle">Terraform, CloudFormation, YAML templating, and declarative provisioning via Ansible scripts.</p>
+        </div>
+        <div class="glass-card reveal">
+            <h3 class="card-title"><i class="fas fa-chart-line"></i> Monitoring & Observability</h3>
+            <p class="card-subtitle">Datadog APM, CloudWatch, Log Analytics, OpenSearch dashboards, Bits AI telemetry, and RUM metrics.</p>
+        </div>
+        <div class="glass-card reveal">
+            <h3 class="card-title"><i class="fas fa-terminal"></i> OS, ITSM & Tooling</h3>
+            <p class="card-subtitle">Linux (Ubuntu enterprise environments), Postman API testing, Elasticvue, and ServiceNow incident workflows.</p>
+        </div>
     </div>
 </section>
+
+<!-- Experience Section -->
 <section id="experience" class="reveal">
-    <div class="section-header"><div class="section-tag">Career Path</div><h2 class="section-title">Professional Experience</h2></div>
+    <div class="section-header">
+        <div class="section-tag">Career Path</div>
+        <h2 class="section-title">Professional Experience</h2>
+    </div>
     <div class="glass-card reveal">
-        <h3>SRE / DevOps Engineer</h3><h4>Thomson Reuters International Services Pvt. Ltd. — Bengaluru (Nov 2023 – Present)</h4>
-        <h5>Project: Materia (CoCounselTax AI) — AI-Powered Tax Advisory</h5>
+        <h3>SRE / DevOps Engineer</h3>
+        <h4>Thomson Reuters International Services Pvt. Ltd. — Bengaluru (Nov 2023 – Present)</h4>
+        
+        <h5><i class="fas fa-brain"></i> Project: Materia (CoCounselTax AI) — AI-Powered Tax Advisory</h5>
         <ul class="card-list">
-            <li>Supported an AI-driven web application for complex tax and compliance queries at enterprise scale.</li>
-            <li>Managed scalable AWS infrastructure for AI workloads, ensuring high availability and data security.</li>
-            <li>Implemented monitoring and centralized logging using Datadog and Amazon CloudWatch, reducing MTTR.</li>
+            <li>Supported a high-concurrency AI-driven web application tailored for complex tax and compliance queries at enterprise scale.</li>
+            <li>Managed scalable AWS infrastructure for high-performance AI workloads, assuring rigorous data security and low latency.</li>
+            <li>Implemented proactive monitoring and centralized telemetry logging using Datadog and Amazon CloudWatch, significantly reducing MTTR.</li>
         </ul>
-        <h5>Project: Checkpoint Edge — Tax & Accounting Platform</h5>
+        
+        <h5><i class="fas fa-shield-halved"></i> Project: Checkpoint Edge — Tax & Accounting Platform</h5>
         <ul class="card-list">
-            <li>Led AWS cost optimization initiatives achieving 15% reduction through right-sizing and resource utilization.</li>
-            <li>Automated infrastructure provisioning for EC2, Lambda, and ECS (Fargate) using Terraform and YAML.</li>
-            <li>Designed, built, and maintained CI/CD pipelines using Jenkins and GitHub Actions for multi-environment releases.</li>
+            <li>Spearheaded strategic AWS cost optimization initiatives, achieving a sustainable 15% expenditure reduction via resource right-sizing.</li>
+            <li>Automated complete infrastructure provisioning cycles for EC2, Lambda, and ECS (Fargate) using Terraform modules and YAML definitions.</li>
+            <li>Designed, built, and maintained robust CI/CD deployment pipelines utilizing Jenkins and GitHub Actions for zero-downtime multi-environment releases.</li>
         </ul>
     </div>
 </section>
+
+<!-- Achievements Section -->
 <section id="achievements" class="reveal">
-    <div class="section-header"><div class="section-tag">Key Wins</div><h2 class="section-title">Core Achievements</h2></div>
+    <div class="section-header">
+        <div class="section-tag">Key Wins</div>
+        <h2 class="section-title">Core Achievements</h2>
+    </div>
     <div class="grid-container achievements-grid">
-        <div class="glass-card reveal"><h4>🤖 Smart Cloud Automation</h4><p class="card-subtitle">Designed intelligent automation scripts to make cloud operations smarter and faster.</p></div>
-        <div class="glass-card reveal"><h4>🔍 OpenSearch Migration</h4><p class="card-subtitle">Led the end-to-end migration of OpenSearch to a modern cloud-native solution.</p></div>
-        <div class="glass-card reveal"><h4>💰 15% AWS Cost Reduction</h4><p class="card-subtitle">Achieved significant cost savings through systematic right-sizing and resource analysis.</p></div>
+        <div class="glass-card reveal">
+            <h3 class="card-title"><i class="fas fa-wand-magic-sparkles"></i> Smart Cloud Automation</h3>
+            <p class="card-subtitle">Designed intelligent automation scripts to streamline cloud resource orchestration and accelerate operational throughput.</p>
+        </div>
+        <div class="glass-card reveal">
+            <h3 class="card-title"><i class="fas fa-database"></i> OpenSearch Migration</h3>
+            <p class="card-subtitle">Led the end-to-end mission-critical migration of legacy OpenSearch clusters to a modernized cloud-native solution.</p>
+        </div>
+        <div class="glass-card reveal">
+            <h3 class="card-title"><i class="fas fa-piggy-bank"></i> 15% AWS Cost Reduction</h3>
+            <p class="card-subtitle">Delivered substantial cloud financial savings through rigorous workload profiling, resource tracking, and right-sizing metrics.</p>
+        </div>
     </div>
 </section>
+
+<!-- Certifications Section -->
 <section id="certifications" class="reveal">
-    <div class="section-header"><div class="section-tag">Credentials</div><h2 class="section-title">Education & Certifications</h2></div>
+    <div class="section-header">
+        <div class="section-tag">Credentials</div>
+        <h2 class="section-title">Education & Certifications</h2>
+    </div>
     <div class="grid-container certs-grid">
-        <div class="glass-card reveal"><h5>B.E. in ECE</h5><p class="card-subtitle">R.M.K College of Engineering (CGPA: 7.82)</p></div>
-        <div class="glass-card reveal"><h5>Datadog 101: SRE</h5><p class="card-subtitle">Datadog</p></div>
-        <div class="glass-card reveal"><h5>AWS Cloud Practitioner</h5><p class="card-subtitle">Amazon Web Services</p></div>
-        <div class="glass-card reveal"><h5>Generative AI Fundamentals</h5><p class="card-subtitle">Google Cloud</p></div>
+        <div class="glass-card reveal">
+            <h3 class="card-title"><i class="fas fa-graduation-cap"></i> B.E. in ECE</h3>
+            <p class="card-subtitle">R.M.K College of Engineering<br><span style="color:var(--accent-color); font-weight:600;">CGPA: 7.82</span></p>
+        </div>
+        <div class="glass-card reveal">
+            <h3 class="card-title"><i class="fas fa-certificate"></i> Datadog 101: SRE</h3>
+            <p class="card-subtitle">Datadog Certified Credential</p>
+        </div>
+        <div class="glass-card reveal">
+            <h3 class="card-title"><i class="fab fa-aws"></i> AWS Cloud Practitioner</h3>
+            <p class="card-subtitle">Amazon Web Services</p>
+        </div>
+        <div class="glass-card reveal">
+            <h3 class="card-title"><i class="fas fa-brain"></i> Generative AI Fundamentals</h3>
+            <p class="card-subtitle">Google Cloud Platform</p>
+        </div>
     </div>
 </section>
+
+<!-- Contact Section -->
 <section id="contact" class="reveal">
     <div class="glass-card reveal">
-        <div class="section-header" style="margin-bottom: 30px;"><div class="section-tag">Let's Connect</div><h2 class="section-title">Get In Touch</h2></div>
+        <div class="section-header" style="margin-bottom: 25px;">
+            <div class="section-tag">Let's Connect</div>
+            <h2 class="section-title" style="font-size: 2.2rem;">Get In Touch</h2>
+        </div>
         <h3>Let's Build Something Reliable Together</h3>
-        <p>I'm always open to discussing new opportunities or talking shop about SRE and cloud infrastructure. Feel free to reach out!</p>
+        <p>I'm always open to discussing high-scale engineering opportunities or talking shop about SRE and resilient cloud infrastructure. Feel free to reach out!</p>
         <div class="contact-socials">
             <a href="mailto:Hitheshyadav110@gmail.com" class="social-btn" aria-label="Email"><i class="fas fa-envelope"></i></a>
             <a href="https://www.linkedin.com/in/mungara-hithesh-yadav-7a473a20b" class="social-btn" target="_blank" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
@@ -298,36 +412,78 @@
         </div>
     </div>
 </section>
-<footer><div class="footer-text">© 2026 <span>Hithesh Yadav</span> · Built with Reliability and Design.</div></footer>
+
+<footer>
+    <div class="footer-text">© 2026 <span>Hithesh Yadav</span> · Built with Reliability, Precision & Dynamic Motion.</div>
+</footer>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
 
     /**
-     * UPDATED: Initializes a Three.js scene with a rotating Torus Knot.
-     * This object is fixed in the center and subtly reacts to mouse movement.
+     * Custom Cursor Follower
+     */
+    const cursor = document.getElementById('customCursor');
+    if (cursor) {
+        window.addEventListener('mousemove', e => {
+            cursor.style.top = e.clientY + 'px';
+            cursor.style.left = e.clientX + 'px';
+        });
+        document.querySelectorAll('a, button, .glass-card').forEach(item => {
+            item.addEventListener('mouseenter', () => {
+                cursor.style.width = '55px';
+                cursor.style.height = '55px';
+                cursor.style.backgroundColor = 'rgba(0, 255, 140, 0.08)';
+            });
+            item.addEventListener('mouseleave', () => {
+                cursor.style.width = '32px';
+                cursor.style.height = '32px';
+                cursor.style.backgroundColor = 'transparent';
+            });
+        });
+    }
+
+    /**
+     * Enhanced Three.js Scene: Torus Knot + Particle Cloud
      */
     function initThreeJS() {
         if (typeof THREE === 'undefined') { console.error("Three.js is not loaded."); return; }
 
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('three-canvas'), alpha: true });
+        const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('three-canvas'), alpha: true, antialias: true });
 
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         camera.position.z = 5;
 
-        // UPDATED: Changed geometry to TorusKnot for a more complex look
-        const geometry = new THREE.TorusKnotGeometry(1.5, 0.4, 128, 16, 2, 3);
+        // Torus Knot Mesh
+        const geometry = new THREE.TorusKnotGeometry(1.4, 0.38, 128, 32, 2, 3);
         const material = new THREE.MeshBasicMaterial({
             color: new THREE.Color(getComputedStyle(document.documentElement).getPropertyValue('--accent-color')),
             wireframe: true,
-            opacity: 0.25,
+            opacity: 0.3,
             transparent: true
         });
         const torusKnot = new THREE.Mesh(geometry, material);
         scene.add(torusKnot);
+
+        // Particle Starfield Background
+        const particlesCount = 700;
+        const posArray = new Float32Array(particlesCount * 3);
+        for(let i = 0; i < particlesCount * 3; i++) {
+            posArray[i] = (Math.random() - 0.5) * 15;
+        }
+        const particlesGeometry = new THREE.BufferGeometry();
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        const particlesMaterial = new THREE.PointsMaterial({
+            size: 0.025,
+            color: new THREE.Color('#00ff8c'),
+            transparent: true,
+            opacity: 0.6
+        });
+        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particlesMesh);
 
         let mouseX = 0, mouseY = 0;
         document.addEventListener('mousemove', (e) => {
@@ -339,8 +495,13 @@ document.addEventListener('DOMContentLoaded', function() {
         function animate() {
             requestAnimationFrame(animate);
             const elapsedTime = clock.getElapsedTime();
-            torusKnot.rotation.y = elapsedTime * 0.1 + mouseX * 0.5;
-            torusKnot.rotation.x = elapsedTime * 0.1 + mouseY * 0.5;
+
+            torusKnot.rotation.y = elapsedTime * 0.12 + mouseX * 0.6;
+            torusKnot.rotation.x = elapsedTime * 0.1 + mouseY * 0.6;
+            
+            particlesMesh.rotation.y = elapsedTime * 0.03;
+            particlesMesh.rotation.x = elapsedTime * 0.01;
+
             renderer.render(scene, camera);
         }
         animate();
@@ -353,8 +514,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     /**
-     * UPDATED: Manages the video intro via a click-to-play overlay.
-     * This allows the video to play with sound by default after user interaction.
+     * Video Player with Fallback Handler
      */
     function initVideoPlayer() {
         const overlay = document.getElementById('video-overlay');
@@ -364,35 +524,47 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (!overlay || !video) return;
 
-        // --- 1. Handle Click Interaction ---
-        overlay.addEventListener('click', () => {
-            overlay.classList.add('hidden'); // Fade out the overlay
-            videoWrapper.classList.add('visible'); // Show the video container
+        let started = false;
+        function startExperience() {
+            if (started) return;
+            started = true;
             
-            video.muted = false; // Unmute the video
+            overlay.classList.add('hidden');
+            videoWrapper.classList.add('visible');
+            
+            video.muted = false;
             video.play().catch(error => {
-                // Autoplay was prevented. Fallback to showing content.
-                console.error("Video play failed:", error);
+                console.warn("Video autoplay/sound blocked, falling back to direct view:", error);
                 videoWrapper.classList.add('hidden');
                 heroContent.classList.add('visible');
+                initTypedEffect();
             });
-        }, { once: true }); // Ensure this only runs once
+        }
 
-        // --- 2. Handle Video Ending ---
+        overlay.addEventListener('click', startExperience, { once: true });
+
+        // Fallback timer if video file fails or doesn't fire 'ended'
+        const videoTimeout = setTimeout(() => {
+            if (!video.paused && !video.ended) return;
+            videoWrapper.classList.add('hidden');
+            heroContent.classList.add('visible');
+            initTypedEffect();
+        }, 12000);
+
         video.addEventListener('ended', () => {
-            videoWrapper.classList.add('hidden'); // Fade out the video
-            heroContent.classList.add('visible'); // Fade in the main hero content
-            initTypedEffect(); // Start the typing effect after the video
+            clearTimeout(videoTimeout);
+            videoWrapper.classList.add('hidden');
+            heroContent.classList.add('visible');
+            initTypedEffect();
         });
     }
 
     /**
-     * Initializes the typing animation for the hero section title.
-     * NOTE: This is now called *after* the video finishes.
+     * Typing Animation Effect
      */
     function initTypedEffect() {
         const el = document.getElementById('typed-text');
-        if (!el || el.getAttribute('data-typed')) return; // Prevent re-initialization
+        if (!el || el.getAttribute('data-typed')) return;
         el.setAttribute('data-typed', 'true');
 
         const texts = ['Site Reliability Engineer.', 'DevOps Engineer.', 'Cloud Automation Expert.'];
@@ -400,11 +572,11 @@ document.addEventListener('DOMContentLoaded', function() {
         
         function type() {
             const currentText = texts[textIndex];
-            let speed = isDeleting ? 60 : 120;
+            let speed = isDeleting ? 50 : 100;
             if (!isDeleting) {
                 el.textContent = currentText.substring(0, charIndex + 1);
                 charIndex++;
-                if (charIndex === currentText.length) { isDeleting = true; speed = 2500; }
+                if (charIndex === currentText.length) { isDeleting = true; speed = 2400; }
             } else {
                 el.textContent = currentText.substring(0, charIndex - 1);
                 charIndex--;
@@ -415,7 +587,9 @@ document.addEventListener('DOMContentLoaded', function() {
         type();
     }
 
-    // Other standard functions (no changes needed)
+    /**
+     * Scroll Reveal & Navbar Highlight
+     */
     function initScrollAnimations() {
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -424,7 +598,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     observer.unobserve(entry.target);
                 }
             });
-        }, { threshold: 0.1 });
+        }, { threshold: 0.12 });
         document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
     }
     
@@ -433,7 +607,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const navLinks = document.querySelectorAll('.nav-links a');
         window.addEventListener('scroll', () => {
             let currentId = '';
-            sections.forEach(section => { if (window.scrollY >= section.offsetTop - 150) { currentId = section.getAttribute('id'); } });
+            sections.forEach(section => { if (window.scrollY >= section.offsetTop - 160) { currentId = section.getAttribute('id'); } });
             navLinks.forEach(link => {
                 link.classList.remove('active');
                 if (link.getAttribute('href') === `#${currentId}`) link.classList.add('active');
@@ -453,14 +627,13 @@ document.addEventListener('DOMContentLoaded', function() {
         navLinks.querySelectorAll('a').forEach(link => link.addEventListener('click', () => { if (navLinks.classList.contains('active')) toggleMenu(); }));
     }
 
-    // Initialize all features
+    // Initialize all modules
     initThreeJS();
-    initVideoPlayer(); // This now controls when the typed effect starts
+    initVideoPlayer();
     initScrollAnimations();
     initNavHighlight();
     initMobileNav();
 });
 </script>
-
 </body>
 </html>
